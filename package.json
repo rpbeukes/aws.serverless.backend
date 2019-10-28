@@ -1,10 +1,16 @@
 {
-  "name": "aws.serverless.backend",
+  "name": "aws-serverless-backend",
   "version": "1.0.0",
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sls": "serverless",
+    "package": "npm-run-all --sequential package:**",
+    "package:sls": "SLS_DEBUG=* npm run sls package -- --verbose --stage dev --package ./package",
+    "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
+    "package:remove-cloudformation-json": "rm ./package/cloudformation*.json",
+    "package:unzip-functions": "cd ./package && unzip aws-serverless-backend.zip",
+    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package"
   },
   "dependencies": {
     "source-map-support": "^0.5.10"
@@ -12,11 +18,14 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
     "@types/node": "^10.12.18",
+    "env-cmd": "^10.0.1",
+    "npm-run-all": "^4.1.5",
+    "serverless": "^1.55.1",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
     "webpack": "^4.29.0"
   },
-  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "author": "Ru",
   "license": "MIT"
 }
