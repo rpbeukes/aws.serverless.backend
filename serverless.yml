@@ -19,7 +19,7 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: src/functions/hello/hello.lambdaHandler
     events:
       - http:
           method: get
