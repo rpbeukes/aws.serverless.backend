@@ -42,3 +42,17 @@ functions:
             method: get
             path: items/id/{id}
             cors: true
+  loan-by-status:
+      handler: src/functions/loans/loan-by-status/loan-by-status.lambdaHandler
+      events:
+        - http:
+            method: get
+            path: loans/status/{status}
+            cors: true            
+  loan-by-id:
+      handler: src/functions/loans/loan-by-id/loan-by-id.lambdaHandler
+      events:
+        - http:
+            method: get
+            path: loans/id/{id}
+            cors: true            
