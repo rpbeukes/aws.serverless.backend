@@ -9,7 +9,7 @@
     "package:sls": "SLS_DEBUG=* npm run sls package -- --verbose --stage dev --package ./package",
     "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
     "package:remove-cloudformation-json": "rm ./package/cloudformation*.json",
-    "package:unzip-functions": "cd ./package && unzip aws-serverless-backend.zip",
+    "package:unzip-functions": "cd ./package && unzip \\*.zip",
     "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package"
   },
   "dependencies": {

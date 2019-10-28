@@ -17,6 +17,9 @@ provider:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
 
+package:
+  individually: true
+
 functions:
   hello:
     handler: src/functions/hello/hello.lambdaHandler
@@ -25,3 +28,10 @@ functions:
           method: get
           path: hello
           cors: true
+  item-by-id:
+      handler: src/functions/item-by-id/item-by-id.lambdaHandler
+      events:
+        - http:
+            method: get
+            path: items/id/{id}
+            cors: true

@@ -18,3 +18,4 @@ sls create --template aws-nodejs-typescript --path your-awesome-project
 ## Resources
 [Hello World Node.js Example](https://serverless.com/framework/docs/providers/aws/examples/hello-world/node/) 
 
+[Packaging](https://serverless.com/framework/docs/providers/aws/guide/packaging/)

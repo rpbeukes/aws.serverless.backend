@@ -1,0 +1,25 @@
+import { APIGatewayProxyHandler } from 'aws-lambda';
+import 'source-map-support/register';
+import { dataSample } from '../../sample-data/dataSample';
+
+export const lambdaHandler: APIGatewayProxyHandler = async (event, _context) => {
+  let response;
+  
+  let filter = dataSample.filter(sample => sample.id === (<any>event.pathParameters).id)
+  let data = filter && filter.length > 0 && filter[0];
+
+  try {
+    response = {
+      statusCode: 200,
+      body: JSON.stringify(data || null),
+      headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:8080'
+      }
+    };
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
+
+  return response;
+}
