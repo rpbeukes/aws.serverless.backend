@@ -3,6 +3,9 @@ const slsw = require('serverless-webpack');
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
+  optimization: {
+		minimize: true
+	},
   entry: slsw.lib.entries,
   devtool: 'source-map',
   resolve: {
