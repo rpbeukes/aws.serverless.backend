@@ -5,14 +5,16 @@
   "main": "handler.js",
   "scripts": {
     "sls": "serverless",
-    "package": "npm-run-all --sequential package:**",
+    "package": "export NODE_OPTIONS=--max_old_space_size=8192 && npm-run-all --sequential package:**",
     "package:sls": "SLS_DEBUG=* npm run sls package -- --verbose --stage dev --package ./package",
     "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
     "package:remove-cloudformation-json": "rm ./package/cloudformation*.json",
     "package:unzip-functions": "cd ./package && unzip \\*.zip",
-    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package"
+    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package",
+    "build-and-ship": "npm run package && npm run sls-deploy"
   },
   "dependencies": {
+    "middy": "^0.30.4",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
