@@ -5,6 +5,7 @@
   "main": "handler.js",
   "scripts": {
     "sls": "serverless",
+    "tsc": "tsc",
     "package": "export NODE_OPTIONS=--max_old_space_size=8192 && npm-run-all --sequential package:**",
     "package:sls": "SLS_DEBUG=* npm run sls package -- --verbose --stage dev --package ./package",
     "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
@@ -28,6 +29,6 @@
     "typescript": "^3.2.4",
     "webpack": "^4.29.0"
   },
-  "author": "Ru",
+  "author": "Ruan",
   "license": "MIT"
 }

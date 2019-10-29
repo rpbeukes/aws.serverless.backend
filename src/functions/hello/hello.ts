@@ -1,9 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import * as middy from 'middy';
-import { cors } from '../../middleware/cors';
+import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
 
-const lambda: APIGatewayProxyHandler = async (event, _context) => {
+const lambda: APIGatewayProxyHandler = async (event) => {
   return {
     statusCode: 200,
     body: JSON.stringify(
@@ -18,4 +17,4 @@ const lambda: APIGatewayProxyHandler = async (event, _context) => {
   };
 };
 
-export const lambdaHandler = middy(lambda).use(cors());
+export const lambdaHandler = createLambdaHandler(lambda);
