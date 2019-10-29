@@ -1,8 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
 import { dataSample } from '../../../sample-data/dataSample';
+import { createLambdaHandler } from '../../../middleware/shared-middleware-pipeline';
 
-export const lambdaHandler: APIGatewayProxyHandler = async (event, _context) => {
+const lambda: APIGatewayProxyHandler = async (event, _context) => {
   let response;
   
   let filter = dataSample.filter(sample => sample.id === (<any>event.pathParameters).id)
@@ -11,10 +12,7 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event, _context) => 
   try {
     response = {
       statusCode: 200,
-      body: JSON.stringify(data || null),
-      headers: {
-        'Access-Control-Allow-Origin': 'http://localhost:8080'
-      }
+      body: JSON.stringify(data || null)
     };
   } catch (err) {
     console.log(err);
@@ -23,3 +21,5 @@ export const lambdaHandler: APIGatewayProxyHandler = async (event, _context) => 
 
   return response;
 }
+
+export const lambdaHandler = createLambdaHandler(lambda);
