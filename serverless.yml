@@ -16,6 +16,7 @@ provider:
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
+    TABLE_PREFIX: ${self:service.name}-${self:provider.stage}-
 
 package:
   individually: true
@@ -55,4 +56,8 @@ functions:
         - http:
             method: get
             path: loans/id/{id}
-            cors: true            
+            cors: true
+
+resources:
+  # DynamoDB
+  - ${file(./aws-cloudformation/dynamo-tables.yml)}

@@ -1,0 +1,31 @@
+Resources:
+  ItemTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:provider.environment.TABLE_PREFIX}Item
+      KeySchema:
+        - KeyType: HASH
+          AttributeName: id
+        # - KeyType: RANGE
+        #   AttributeName: name
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        # - AttributeName: name
+        #   AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      # GlobalSecondaryIndexes:
+      #   - IndexName: name-id-index
+      #     Projection:
+      #       ProjectionType: ALL
+      #     KeySchema:
+      #       - KeyType: HASH
+      #         AttributeName: id
+      #       - KeyType: RANGE
+      #         AttributeName: name
+      #     ProvisionedThroughput:
+      #       ReadCapacityUnits: 1
+      #       WriteCapacityUnits: 1
+  
