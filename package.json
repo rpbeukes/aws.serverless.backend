@@ -16,6 +16,7 @@
     "build-and-ship": "npm run package && npm run sls-deploy"
   },
   "dependencies": {
+    "http-status-codes": "^1.4.0",
     "middy": "^0.30.4",
     "source-map-support": "^0.5.10"
   },
