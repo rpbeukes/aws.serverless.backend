@@ -4,16 +4,15 @@ import 'source-map-support/register';
 import { createLambdaHandler } from '../../../middleware/shared-middleware-pipeline';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import * as HttpStatus from 'http-status-codes';
+import { createTableNameFromPrefix, createDocumentClientOptions } from '../../../shared/dynamoHelpers'
 
 const lambda: APIGatewayProxyHandler = async () => {
   let response;
 
   try {
 
-    const tableName = process.env && process.env.TABLE_PREFIX && process.env.TABLE_PREFIX + 'Item' || '';
-    if (tableName === '') throw Error('Failed to read process.env.TABLE_PREFIX');
-    
-    const docClient = new DynamoDB.DocumentClient({ region: process.env.REGION, apiVersion: '2012-08-10' });
+    const tableName = createTableNameFromPrefix('Item');
+    const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
 
     let scanParams: DocumentClient.ScanInput = {
         TableName: tableName 
