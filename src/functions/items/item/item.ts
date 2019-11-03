@@ -10,12 +10,10 @@ const lambda: APIGatewayProxyHandler = async () => {
   let response;
 
   try {
-
-    const tableName = createTableNameFromPrefix('Item');
     const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
 
     let scanParams: DocumentClient.ScanInput = {
-        TableName: tableName 
+        TableName: createTableNameFromPrefix('Item') 
     }
 
     const dataResponse = await docClient.scan(scanParams).promise();
