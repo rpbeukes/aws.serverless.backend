@@ -4,17 +4,22 @@ import 'source-map-support/register';
 import { createLambdaHandler } from '../../../middleware/shared-middleware-pipeline';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import * as HttpStatus from 'http-status-codes';
-import { createTableNameFromPrefix, createDocumentClientOptions } from '../../../shared/dynamoHelpers'
+import {
+  createTableNameFromPrefix,
+  createDocumentClientOptions
+} from '../../../shared/dynamoHelpers';
 
 const lambda: APIGatewayProxyHandler = async () => {
   let response;
 
   try {
-    const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
+    const docClient = new DynamoDB.DocumentClient(
+      createDocumentClientOptions()
+    );
 
     let scanParams: DocumentClient.ScanInput = {
-        TableName: createTableNameFromPrefix('Item') 
-    }
+      TableName: createTableNameFromPrefix('Item')
+    };
 
     const dataResponse = await docClient.scan(scanParams).promise();
 
@@ -22,7 +27,6 @@ const lambda: APIGatewayProxyHandler = async () => {
       statusCode: HttpStatus.OK,
       body: JSON.stringify(dataResponse.Items)
     };
-
   } catch (err) {
     console.log(err);
     return err;
@@ -35,6 +39,6 @@ const lambda: APIGatewayProxyHandler = async () => {
   }
 
   return response;
-}
+};
 
 export const lambdaHandler = createLambdaHandler(lambda);
