@@ -36,37 +36,37 @@ package:
   individually: true
 
 functions:
-  hello:
-    handler: src/functions/hello/hello.lambdaHandler
+  GetHello:
+    handler: src/functions/hello/getHello.lambdaHandler
     events:
       - http:
           method: get
           path: hello
           cors: true
-  item:
-      handler: src/functions/items/item/item.lambdaHandler
+  ListItems:
+      handler: src/functions/item/listItems.lambdaHandler
       tracing: Active
       events:
         - http:
             method: get
             path: items
             cors: true          
-  item-by-id:
-      handler: src/functions/items/item-by-id/item-by-id.lambdaHandler
+  GetItemById:
+      handler: src/functions/item/getItemById.lambdaHandler
       events:
         - http:
             method: get
             path: items/id/{id}
             cors: true
-  loan-by-status:
-      handler: src/functions/loans/loan-by-status/loan-by-status.lambdaHandler
+  GetLoanByStatus:
+      handler: src/functions/loan/getLoanByStatus.lambdaHandler
       events:
         - http:
             method: get
             path: loans/status/{status}
             cors: true            
-  loan-by-id:
-      handler: src/functions/loans/loan-by-id/loan-by-id.lambdaHandler
+  GetLoanById:
+      handler: src/functions/loan/getLoanById.lambdaHandler
       events:
         - http:
             method: get

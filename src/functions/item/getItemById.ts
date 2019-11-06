@@ -1,10 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
 import {
   createTableNameFromPrefix,
   createDocumentClientOptions
-} from '../../../shared/dynamoHelpers';
+} from '../../shared/dynamoHelpers';
 import { DynamoDB } from 'aws-sdk';
 
 const lambda: APIGatewayProxyHandler = async (event, _context) => {

@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
 
 const lambda: APIGatewayProxyHandler = async () => {
   let response;
@@ -8,7 +8,7 @@ const lambda: APIGatewayProxyHandler = async () => {
   try {
     response = {
       statusCode: 200,
-      body: JSON.stringify('ToDo: Add some loan id data')
+      body: JSON.stringify('ToDo: Add some loan status data')
     };
   } catch (err) {
     console.log(err);
