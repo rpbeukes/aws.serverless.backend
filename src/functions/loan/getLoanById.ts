@@ -17,7 +17,7 @@ const lambda: APIGatewayProxyHandler = async (event) => {
     const data = JSON.parse(event.body as string);
 
     const params: PutItemInput = {
-      TableName: createTableNameFromPrefix('Item'),
+      TableName: createTableNameFromPrefix('Loan'),
       Item: data as any // 'as any' so aws-sdk automatically assign attribute maps
     };
 
