@@ -25,25 +25,36 @@ provider:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
+        # only give read access to ItemTable
+        # - dynamodb:PutItem
+        # - dynamodb:UpdateItem
+        # - dynamodb:DeleteItem
+      Resource: 
+        - "Fn::GetAtt": [ ItemTable, Arn ]
+    - Effect: Allow
+      Action:
+        # LoanTable has no Scan and Delete rights
+        - dynamodb:Query
+        # - dynamodb:Scan
+        - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
+        # - dynamodb:DeleteItem
       Resource: 
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TABLE_PREFIX}Item"
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TABLE_PREFIX}Loan"
+        - "Fn::GetAtt": [ LoanTable, Arn ]
 
 package:
   individually: true
 
 functions:
-  GetHello:
+  GetHelloFunction:
     handler: src/functions/hello/getHello.lambdaHandler
     events:
       - http:
           method: get
           path: hello
           cors: true
-  ListItems:
+  ListItemsFunction:
       handler: src/functions/item/listItems.lambdaHandler
       tracing: Active
       events:
@@ -51,8 +62,9 @@ functions:
             method: get
             path: items
             cors: true          
-  GetItemById:
+  GetItemByIdFunction:
       handler: src/functions/item/getItemById.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
@@ -60,16 +72,26 @@ functions:
             cors: true
   GetLoanByStatus:
       handler: src/functions/loan/getLoanByStatus.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
             path: loans/status/{status}
             cors: true            
-  GetLoanById:
+  GetLoanByIdFunction:
       handler: src/functions/loan/getLoanById.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
+            path: loans/id/{id}
+            cors: true
+  PatchLoanByIdFunction:
+      handler: src/functions/loan/patchLoanById.lambdaHandler
+      tracing: Active
+      events:
+        - http:
+            method: patch
             path: loans/id/{id}
             cors: true
 
