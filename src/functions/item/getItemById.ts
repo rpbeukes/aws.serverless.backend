@@ -6,11 +6,28 @@ import {
   createDocumentClientOptions
 } from '../../shared/dynamoHelpers';
 import { DynamoDB } from 'aws-sdk';
+import * as HttpStatus from 'http-status-codes';
+import { InternalServerError, NotFound } from 'http-errors';
+import { Item } from '../../dataModels';
+import { loadById } from '../../services/database';
 
-const lambda: APIGatewayProxyHandler = async (event, _context) => {
+const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
   let response;
 
   try {
+    
+    if (!pathParameters || !pathParameters.id) {
+      throw new InternalServerError(
+        'getItemByIdHandler() failed due to missing ID parameter'
+      );
+    }
+
+    let item = await loadById<Item>(createTableNameFromPrefix('Item'), pathParameters.id);
+    
+    if (!item) {
+      throw new NotFound();
+    }
+
     const docClient = new DynamoDB.DocumentClient(
       createDocumentClientOptions()
     );
@@ -19,7 +36,7 @@ const lambda: APIGatewayProxyHandler = async (event, _context) => {
       TableName: createTableNameFromPrefix('Item'),
       KeyConditionExpression: 'id = :v_id',
       ExpressionAttributeValues: {
-        ':v_id': (<any>event.pathParameters).id
+        ':v_id': pathParameters && (pathParameters.id as any) // had to cast to any, to shut up typescript
       },
       ReturnConsumedCapacity: 'NONE' // optional (NONE | TOTAL | INDEXES)
     };
@@ -27,7 +44,7 @@ const lambda: APIGatewayProxyHandler = async (event, _context) => {
     const data = await docClient.query(params).promise();
 
     response = {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       body: JSON.stringify((data && data.Items && data.Items[0]) || null)
     };
   } catch (err) {

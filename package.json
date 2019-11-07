@@ -16,6 +16,8 @@
     "build-and-ship": "npm run package && npm run sls-deploy"
   },
   "dependencies": {
+    "cuid": "^2.1.6",
+    "http-errors": "^1.7.3",
     "http-status-codes": "^1.4.0",
     "middy": "^0.30.4",
     "source-map-support": "^0.5.10"
