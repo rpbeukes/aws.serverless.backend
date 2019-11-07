@@ -1,0 +1,36 @@
+[
+    {
+        "id": "123456789",
+        "collectionDate": "2019-09-20",
+        "reason": "this reason",
+        "returnDate": "2019-09-25",
+        "selections": [
+            {
+                "count": 1,
+                "item": {
+                    "id": "123",
+                    "category": "The category",
+                    "description": "ItemDescription",
+                    "name": "ItemName"
+                }
+            }
+        ]
+    },
+    {
+        "id": "987654321",
+        "collectionDate": "2019-10-20",
+        "reason": "this reason",
+        "returnDate": "2019-11-25",
+        "selections": [
+            {
+                "count": 1,
+                "item": {
+                    "id": "321",
+                    "category": "CategoryThe",
+                    "description": "DescriptionItem",
+                    "name": "NameItem"
+                }
+            }
+        ]
+    }
+]
