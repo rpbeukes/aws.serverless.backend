@@ -43,7 +43,4 @@ export interface LoanEvent {
   comment?: string;
 }
 
-export type CreateLoanModel = Pick<
-  Loan,
-  'selections' | 'collectionDate' | 'returnDate' | 'reason'
->;
+export type PatchLoanModel = Pick<LoanEvent, 'status' | 'comment'>;

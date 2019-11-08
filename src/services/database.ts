@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import { nameof } from '../shared/nameof';
-import { Identifiable } from '../dataModels';
+import { Identifiable, PatchLoanModel } from '../dataModels';
 import { createDocumentClientOptions } from '../shared/dynamoHelpers';
 import { UpdateItemInput } from 'aws-sdk/clients/dynamodb';
 
@@ -24,20 +24,26 @@ export const loadById = async <TRecord extends Identifiable>(
   return (items || []).shift() as TRecord;
 };
 
-export const patchUpdate = <TRecord>(
+export const patchUpdate = async <TRecord>(
   tableName: string,
-  id: string
+  id: string,
+  value: PatchLoanModel
 ): Promise<TRecord | undefined> => {
-  
+
   const params: UpdateItemInput = {
     TableName: tableName,
-    Key: id as any,
-    UpdateExpression: `SET reason = :v_reason`,
-    ExpressionAttributeNames: updates.reduce((map, { field }) => ({ ...map, [`#${field}`]: field }), {}),
-    ExpressionAttributeValues: updates.reduce((map, { field, value }) => ({ ...map, [`:${field}`]: value }), {}),
+    Key: { id } as any, // cast to shut up typescript
+    UpdateExpression: `SET #status = :status, #comment = :comment`,
+    ExpressionAttributeNames: { '#status': 'status', '#comment': 'comment' },
+    ExpressionAttributeValues: {
+      ':status': value.status as any, // cast to shut up typescript
+      ':comment': value.comment as any // cast to shut up typescript
+    },
     ReturnValues: 'ALL_NEW'
   }
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
 
-  return undefined;
+  const result = await docClient.update(params).promise();
+
+  return result.Attributes as TRecord;
 };

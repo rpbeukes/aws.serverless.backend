@@ -6,8 +6,8 @@ import {
 } from '../../shared/dynamoHelpers';
 import * as HttpStatus from 'http-status-codes';
 import { InternalServerError, NotFound } from 'http-errors';
-import { Loan, CreateLoanModel } from '../../dataModels';
-import { loadById } from '../../services/database';
+import { Loan, PatchLoanModel } from '../../dataModels';
+import { loadById, patchUpdate } from '../../services/database';
 
 const lambda: APIGatewayProxyHandler = async event => {
   let response;
@@ -29,28 +29,13 @@ const lambda: APIGatewayProxyHandler = async event => {
       throw new NotFound();
     }
 
-    let model = event.body && JSON.parse(event.body) as CreateLoanModel;
+    const model = (event.body && JSON.parse(event.body)) as PatchLoanModel;
 
-    let up = await patchUpdate<Loan>(table, event.pathParameters.id);
-    // var params: DynamoDB.Types.QueryInput = {
-    //   TableName: createTableNameFromPrefix('Load'),
-    //   KeyConditionExpression: 'id = :v_id',
-    //   ExpressionAttributeValues: {
-    //     ':v_id': id as any // had to cast to any, to shut up typescript
-    //   },
-    //   ReturnConsumedCapacity: 'NONE' // optional (NONE | TOTAL | INDEXES)
-    // };
-    
-    // const params: PutItemInput = {
-    //   TableName: createTableNameFromPrefix('Loan'),
-    //   Item: body as any // 'as any' so aws-sdk automatically assign attribute maps
-    // };
-
-    // await docClient.(params).promise();
+    let patchedLoan = await patchUpdate<Loan>(table, event.pathParameters.id, model);
 
     response = {
       statusCode: HttpStatus.OK,
-      body: JSON.stringify(loan)
+      body: JSON.stringify(patchedLoan)
     };
   } catch (err) {
     console.log(err);
