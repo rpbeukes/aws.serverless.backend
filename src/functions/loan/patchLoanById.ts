@@ -1,11 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
 import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
-import {
-  createTableNameFromPrefix
-} from '../../shared/dynamoHelpers';
+import { createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import * as HttpStatus from 'http-status-codes';
-import { InternalServerError, NotFound } from 'http-errors';
+import { InternalServerError, NotFound, BadRequest } from 'http-errors';
 import { Loan, PatchLoanModel } from '../../dataModels';
 import { loadById, patchUpdate } from '../../services/database';
 
@@ -13,7 +11,7 @@ const lambda: APIGatewayProxyHandler = async event => {
   let response;
 
   try {
-    
+
     console.log('patchLoanHandler executed!');
 
     if (!event.pathParameters || !event.pathParameters.id) {
@@ -21,15 +19,19 @@ const lambda: APIGatewayProxyHandler = async event => {
         'patchLoanHandler() failed due to missing ID parameter'
       );
     }
-  
+
     let table = createTableNameFromPrefix('Loan');
     let loan = await loadById<Loan>(table, event.pathParameters.id);
-    
+
     if (!loan) {
       throw new NotFound();
     }
 
     const model = (event.body && JSON.parse(event.body)) as PatchLoanModel;
+
+    if (!model.status) {
+      throw new BadRequest('failed to patch record - request body requires {"status": "submitted"| "approved" | "collected" | "returned" | "cancelled" } property');
+    }
 
     let patchedLoan = await patchUpdate<Loan>(table, event.pathParameters.id, model);
 

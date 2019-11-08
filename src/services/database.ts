@@ -30,6 +30,28 @@ export const patchUpdate = async <TRecord>(
   value: PatchLoanModel
 ): Promise<TRecord | undefined> => {
 
+/*
+// This is to get it working with the basics
+const params: UpdateItemInput = {
+    TableName: tableName,
+    Key: { id } as any, // cast to shut up typescript
+    UpdateExpression: `SET #status = :status, #comment = :comment`,
+    ExpressionAttributeNames: { '#status': 'status', '#comment': 'comment' },
+    ExpressionAttributeValues: {
+      ':status': value.status as any, // cast to shut up typescript
+      ':comment': value.comment as any // cast to shut up typescript
+    },
+    ReturnValues: 'ALL_NEW'
+  }
+*/
+
+  let updateExpression = `#${nameof<PatchLoanModel>('status')} = :${nameof<PatchLoanModel>('status')}`;
+
+  if  (value.comment && value.comment.trim()){
+    updateExpression += `, #${nameof<PatchLoanModel>('comment')} = :${nameof<PatchLoanModel>('comment')}`;
+  }
+
+
   const params: UpdateItemInput = {
     TableName: tableName,
     Key: { id } as any, // cast to shut up typescript
