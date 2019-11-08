@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2015"],
+    "lib": [
+      "es2015"
+    ],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -12,7 +14,7 @@
     "skipLibCheck": true,
     "noImplicitAny": true,
     "rootDir": "./",
-    "resolveJsonModule":true,
+    "resolveJsonModule": true,
     "allowJs": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
@@ -20,5 +22,8 @@
   "typeRoots": [
     "node_modules/@types"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "package"
+  ]
 }
