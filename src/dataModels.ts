@@ -44,3 +44,4 @@ export interface LoanEvent {
 }
 
 export type PatchLoanModel = Pick<LoanEvent, 'status' | 'comment'>;
+export type PostLoanModel = Pick<Loan, 'selections' | 'collectionDate' | 'returnDate' | 'reason'>;

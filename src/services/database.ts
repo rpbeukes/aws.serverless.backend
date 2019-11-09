@@ -2,7 +2,7 @@ import { DynamoDB } from 'aws-sdk';
 import { nameof } from '../shared/nameof';
 import { Identifiable, PatchLoanModel } from '../dataModels';
 import { createDocumentClientOptions } from '../shared/dynamoHelpers';
-import { UpdateItemInput } from 'aws-sdk/clients/dynamodb';
+import { UpdateItemInput, PutItemInput } from 'aws-sdk/clients/dynamodb';
 
 export const loadById = async <TRecord extends Identifiable>(
   tableName: string,
@@ -23,6 +23,24 @@ export const loadById = async <TRecord extends Identifiable>(
 
   return (items || []).shift() as TRecord;
 };
+
+export const save = async <TRecord extends Identifiable>(
+  tableName: string,
+  record: TRecord
+): Promise<TRecord | undefined> => {
+
+  const params: PutItemInput = {
+    TableName: tableName,
+    Item: record as any // cast to any to shut up typescript; aws-sdk automatically assign attribute maps
+  };
+
+  const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
+  const result = await docClient.put(params).promise();
+  console.log('result: ', JSON.stringify(result));
+  
+
+  return record;
+}
 
 export const patchUpdate = async <TRecord>(
   tableName: string,

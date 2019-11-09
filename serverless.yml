@@ -52,7 +52,7 @@ functions:
     events:
       - http:
           method: get
-          path: hello
+          path: /hello
           cors: true
   ListItemsFunction:
       handler: src/functions/item/listItems.lambdaHandler
@@ -60,7 +60,7 @@ functions:
       events:
         - http:
             method: get
-            path: items
+            path: /items
             cors: true          
   GetItemByIdFunction:
       handler: src/functions/item/getItemById.lambdaHandler
@@ -68,7 +68,7 @@ functions:
       events:
         - http:
             method: get
-            path: items/id/{id}
+            path: /items/id/{id}
             cors: true
   GetLoanByStatus:
       handler: src/functions/loan/getLoanByStatus.lambdaHandler
@@ -76,7 +76,7 @@ functions:
       events:
         - http:
             method: get
-            path: loans/status/{status}
+            path: /loans/status/{status}
             cors: true            
   GetLoanByIdFunction:
       handler: src/functions/loan/getLoanById.lambdaHandler
@@ -84,7 +84,7 @@ functions:
       events:
         - http:
             method: get
-            path: loans/id/{id}
+            path: /loans/id/{id}
             cors: true
   PatchLoanByIdFunction:
       handler: src/functions/loan/patchLoanById.lambdaHandler
@@ -92,7 +92,15 @@ functions:
       events:
         - http:
             method: patch
-            path: loans/id/{id}
+            path: /loans/id/{id}
+            cors: true
+  PostLoanFunction:
+      handler: src/functions/loan/postLoan.lambdaHandler
+      tracing: Active
+      events:
+        - http:
+            method: post
+            path: /loans
             cors: true
 
 resources:
