@@ -2,7 +2,7 @@ import { DynamoDB } from 'aws-sdk';
 import { nameof } from '../shared/nameof';
 import { Identifiable, PatchLoanModel } from '../dataModels';
 import { createDocumentClientOptions } from '../shared/dynamoHelpers';
-import { UpdateItemInput, PutItemInput } from 'aws-sdk/clients/dynamodb';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 export const loadById = async <TRecord extends Identifiable>(
   tableName: string,
@@ -29,9 +29,9 @@ export const save = async <TRecord extends Identifiable>(
   record: TRecord
 ): Promise<TRecord | undefined> => {
 
-  const params: PutItemInput = {
+  const params: DocumentClient.PutItemInput = {
     TableName: tableName,
-    Item: record as any // cast to any to shut up typescript; aws-sdk automatically assign attribute maps
+    Item: record 
   };
 
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
@@ -80,9 +80,9 @@ export const patchUpdate = async <TRecord>(
     console.log(expressionAttributeNames);
     console.log(expressionAttributeValues);
 
-    const params: UpdateItemInput = {
+    const params: DocumentClient.UpdateItemInput = {
       TableName: tableName,
-      Key: { id } as any, // cast to shut up typescript
+      Key: { id }, //as any, // cast to shut up typescript
       UpdateExpression: `SET ${updateExpression}`,
       ExpressionAttributeNames: JSON.parse(expressionAttributeNames),
       ExpressionAttributeValues: JSON.parse(expressionAttributeValues),
