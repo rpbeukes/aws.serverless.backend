@@ -77,7 +77,11 @@ functions:
         - http:
             method: get
             path: /loans/status/{status}
-            cors: true            
+            cors: true  
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer            
   GetLoanByIdFunction:
       handler: src/functions/loan/getLoanById.lambdaHandler
       tracing: Active
@@ -86,6 +90,10 @@ functions:
             method: get
             path: /loans/id/{id}
             cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
   PatchLoanByIdFunction:
       handler: src/functions/loan/patchLoanById.lambdaHandler
       tracing: Active
@@ -94,6 +102,10 @@ functions:
             method: patch
             path: /loans/id/{id}
             cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
   PostLoanFunction:
       handler: src/functions/loan/postLoan.lambdaHandler
       tracing: Active
@@ -102,7 +114,13 @@ functions:
             method: post
             path: /loans
             cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
 
 resources:
+ # Cognito
+  - ${file(./aws-cloudformation/cognito-user-pool.yml)}
   # DynamoDB
   - ${file(./aws-cloudformation/dynamo-tables.yml)}
