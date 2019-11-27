@@ -7,30 +7,30 @@ import * as cuid from 'cuid';
 import * as moment from 'moment';
 import { save } from '../../services/database';
 import { createTableNameFromPrefix } from '../../shared/dynamoHelpers';
+import { getUsername } from '../../authentication';
 // import { InternalServerError, NotFound, BadRequest } from 'http-errors';
 
-const lambda: APIGatewayProxyHandler = async event => {
+const lambda: APIGatewayProxyHandler = async (event) => {
   let response;
 
   try {
 
     console.log('postLoan executed!');
-    event = event;
-
     const { selections, collectionDate, returnDate, reason } = (event.body && JSON.parse(event.body)) as PostLoanModel;
     const status: LoanStatus = 'submitted';
+    const user = getUsername(event.requestContext);
 
     const loan: Loan = {
       selections,
       collectionDate,
       returnDate,
       reason,
-      user: 'todo@example.com',
+      user,
       status,
       id: cuid(),
       events: [
         {
-          user: 'todo@example.com',
+          user,
           status,
           eventDate: moment().toISOString()
         }
