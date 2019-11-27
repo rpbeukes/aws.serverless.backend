@@ -8,11 +8,11 @@ export const loadById = async <TRecord extends Identifiable>(
   tableName: string,
   id: string
 ): Promise<TRecord | undefined> => {
-  var params: DynamoDB.Types.QueryInput = {
+  var params: DocumentClient.QueryInput = {
     TableName: tableName,
     KeyConditionExpression: `${nameof<Identifiable>('id')} = :v_id`,
     ExpressionAttributeValues: {
-      ':v_id': id as any // had to cast to any, to shut up typescript
+      ':v_id': id
     },
     ReturnConsumedCapacity: 'NONE' // optional (NONE | TOTAL | INDEXES)
   };
