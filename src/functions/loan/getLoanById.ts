@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
 import { createDocumentClientOptions, createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import { DynamoDB } from 'aws-sdk';
-import { PutItemInput } from 'aws-sdk/clients/dynamodb';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import * as HttpStatus from 'http-status-codes';
 
 const lambda: APIGatewayProxyHandler = async (event) => {
@@ -16,9 +16,9 @@ const lambda: APIGatewayProxyHandler = async (event) => {
     
     const data = JSON.parse(event.body as string);
 
-    const params: PutItemInput = {
+    const params: DocumentClient.PutItemInput = {
       TableName: createTableNameFromPrefix('Loan'),
-      Item: data as any // 'as any' so aws-sdk automatically assign attribute maps
+      Item: data 
     };
 
     await docClient.put(params).promise();

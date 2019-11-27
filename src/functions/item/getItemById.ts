@@ -10,6 +10,7 @@ import * as HttpStatus from 'http-status-codes';
 import { InternalServerError, NotFound } from 'http-errors';
 import { Item } from '../../dataModels';
 import { loadById } from '../../services/database';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
   let response;
@@ -32,11 +33,11 @@ const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
       createDocumentClientOptions()
     );
 
-    var params: DynamoDB.Types.QueryInput = {
+    var params: DocumentClient.QueryInput = {
       TableName: createTableNameFromPrefix('Item'),
       KeyConditionExpression: 'id = :v_id',
       ExpressionAttributeValues: {
-        ':v_id': pathParameters && (pathParameters.id as any) // had to cast to any, to shut up typescript
+        ':v_id': pathParameters && pathParameters.id 
       },
       ReturnConsumedCapacity: 'NONE' // optional (NONE | TOTAL | INDEXES)
     };
