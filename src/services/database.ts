@@ -31,13 +31,13 @@ export const save = async <TRecord extends Identifiable>(
 
   const params: DocumentClient.PutItemInput = {
     TableName: tableName,
-    Item: record 
+    Item: record
   };
 
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
   const result = await docClient.put(params).promise();
   console.log('result: ', JSON.stringify(result));
-  
+
 
   return record;
 }
@@ -50,14 +50,14 @@ export const patchUpdate = async <TRecord>(
 
   /*
   // This is to get it working with the basics
-  const params: UpdateItemInput = {
+  const params: DocumentClient.UpdateItemInput = {
       TableName: tableName,
-      Key: { id } as any, // cast to shut up typescript
+      Key: { id } 
       UpdateExpression: `SET #status = :status, #comment = :comment`,
       ExpressionAttributeNames: { '#status': 'status', '#comment': 'comment' },
       ExpressionAttributeValues: {
-        ':status': value.status as any, // cast to shut up typescript
-        ':comment': value.comment as any // cast to shut up typescript
+        ':status': value.status 
+        ':comment': value.comment
       },
       ReturnValues: 'ALL_NEW'
     }
@@ -82,7 +82,7 @@ export const patchUpdate = async <TRecord>(
 
     const params: DocumentClient.UpdateItemInput = {
       TableName: tableName,
-      Key: { id }, //as any, // cast to shut up typescript
+      Key: { id },
       UpdateExpression: `SET ${updateExpression}`,
       ExpressionAttributeNames: JSON.parse(expressionAttributeNames),
       ExpressionAttributeValues: JSON.parse(expressionAttributeValues),
@@ -96,4 +96,70 @@ export const patchUpdate = async <TRecord>(
   } catch (error) {
     return Promise.reject(error);
   }
+};
+
+export const loadAllByQuery = async <TRecord extends Identifiable>(
+  tableName: string,
+  key: keyof TRecord,
+  value: any,
+  filter?: Partial<Record<keyof TRecord, any>>,
+  startKey?: any
+): Promise<TRecord[]> => {
+
+  console.log(startKey);
+  console.log(filter);
+
+  const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
+
+  var params: DocumentClient.QueryInput = {
+    TableName: tableName,
+    IndexName: `by_${key}`,
+    KeyConditionExpression: '#key = :value',
+    ExpressionAttributeNames: {
+      "#key": key as string
+    },
+    ExpressionAttributeValues: {
+      ":value": value
+    }
+  };
+
+  const result = await docClient.query(params).promise();
+
+  console.log(result);
+
+  // const { Items: items, LastEvaluatedKey: lastKey } = await new DynamoDB.DocumentClient()
+  //   .query({
+  //     TableName: tableName,
+  //     IndexName: `by_${key}`,
+  //     KeyConditionExpression: '#key = :value',
+  //     FilterExpression: !filter ? undefined : Object.keys(filter)
+  //       .reduce(
+  //         (expression, filterKey, index) => [
+  //           ...expression,
+  //           `#filter${index} = :filter${index}`
+  //         ],
+  //         [] as string[]
+  //       )
+  //       .join(' and '),
+  //     ExpressionAttributeNames: Object.keys(filter || {})
+  //       .reduce(
+  //         (result, filterKey, index) => ({
+  //           ...result,
+  //           [`#filter${index}`]: filterKey
+  //         }),
+  //         { '#key': String(key) } as Record<string, any>
+  //       ),
+  //     ExpressionAttributeValues: Object.keys(filter || {})
+  //       .reduce(
+  //         (result, filterKey, index) => ({
+  //           ...result,
+  //           [`:filter${index}`]: filter ? filter[filterKey as keyof TRecord] : undefined
+  //         }),
+  //         { ':value': value } as Record<string, any>
+  //       ),
+  //     ExclusiveStartKey: startKey
+  //   })
+  //   .promise();
+
+  return result && result.Items as TRecord[];
 };

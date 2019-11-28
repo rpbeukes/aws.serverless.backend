@@ -24,6 +24,17 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: by_status
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: id
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       AttributeDefinitions:
         - AttributeName: id
+          AttributeType: S
+        - AttributeName: status
           AttributeType: S
