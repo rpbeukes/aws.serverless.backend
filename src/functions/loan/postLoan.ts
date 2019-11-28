@@ -11,10 +11,6 @@ import { getUsername } from '../../authentication';
 // import { InternalServerError, NotFound, BadRequest } from 'http-errors';
 
 const lambda: APIGatewayProxyHandler = async (event) => {
-  let response;
-
-  try {
-
     console.log('postLoan executed!');
     const { selections, collectionDate, returnDate, reason } = (event.body && JSON.parse(event.body)) as PostLoanModel;
     const status: LoanStatus = 'submitted';
@@ -42,17 +38,10 @@ const lambda: APIGatewayProxyHandler = async (event) => {
 
     console.log(result);
 
-    response = {
+    return {
       statusCode: HttpStatus.CREATED,
       body: JSON.stringify(loan)
     };
-
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-
-  return response;
 };
 
 export const lambdaHandler = createLambdaHandler(lambda);

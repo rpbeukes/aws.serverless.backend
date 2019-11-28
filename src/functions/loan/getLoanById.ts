@@ -11,10 +11,6 @@ import { Loan } from '../../dataModels';
 import { getUsername, isAdminUser } from '../../authentication';
 
 const lambda: APIGatewayProxyHandler = async (event) => {
-  let response;
-
-  try {
-
     if (!event.pathParameters || !event.pathParameters.id) {
       throw new InternalServerError(
         'getLoanByIdHandler() failed due to missing ID parameter'
@@ -30,8 +26,7 @@ const lambda: APIGatewayProxyHandler = async (event) => {
 
     const user = getUsername(event.requestContext);
     
-    const isAdministratorUser = isAdminUser(event.requestContext);
-    const hasPrivilege  = isAdministratorUser || user === loan.user;
+    const hasPrivilege  = isAdminUser(event.requestContext) || user === loan.user;
     if (!hasPrivilege) {
       throw new Forbidden(`You do not have permission to view this loan`);
     }
@@ -50,17 +45,11 @@ const lambda: APIGatewayProxyHandler = async (event) => {
 
     const data = await docClient.query(params).promise();
 
-    response = {
+    return {
       statusCode: HttpStatus.OK,
       body: JSON.stringify((data && data.Items && data.Items[0]) || null)
     };
 
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-
-  return response;
 }
 
 export const lambdaHandler = createLambdaHandler(lambda);

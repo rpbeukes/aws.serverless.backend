@@ -13,10 +13,6 @@ import { loadById } from '../../services/database';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
 const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
-  let response;
-
-  try {
-    
     if (!pathParameters || !pathParameters.id) {
       throw new InternalServerError(
         'getItemByIdHandler() failed due to missing ID parameter'
@@ -44,16 +40,10 @@ const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
 
     const data = await docClient.query(params).promise();
 
-    response = {
+    return {
       statusCode: HttpStatus.OK,
       body: JSON.stringify((data && data.Items && data.Items[0]) || null)
     };
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-
-  return response;
 };
 
 export const lambdaHandler = createLambdaHandler(lambda);

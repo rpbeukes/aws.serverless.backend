@@ -3,19 +3,11 @@ import 'source-map-support/register';
 import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
 
 const lambda: APIGatewayProxyHandler = async () => {
-  let response;
-  
-  try {
-    response = {
+
+  return {
       statusCode: 200,
       body: JSON.stringify('ToDo: Add some loan status data')
     };
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-
-  return response;
 }
 
 export const lambdaHandler = createLambdaHandler(lambda);

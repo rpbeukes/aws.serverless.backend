@@ -10,10 +10,6 @@ import { loadById, patchUpdate } from '../../services/database';
 import { isAdminUser, getUsername } from '../../authentication';
 
 const lambda: APIGatewayProxyHandler = async event => {
-  let response;
-
-  try {
-
     console.log('patchLoanHandler executed!');
 
     if (!event.pathParameters || !event.pathParameters.id) {
@@ -52,16 +48,10 @@ const lambda: APIGatewayProxyHandler = async event => {
 
     let patchedLoan = await patchUpdate<Loan>(table, event.pathParameters.id, model);
 
-    response = {
+    return {
       statusCode: HttpStatus.OK,
       body: JSON.stringify(patchedLoan)
     };
-  } catch (err) {
-    console.log(err);
-    return err;
-  }
-
-  return response;
 };
 
 export const lambdaHandler = createLambdaHandler(lambda);
