@@ -13,46 +13,121 @@ provider:
   runtime: nodejs10.x
   region: ap-southeast-2
   stage: ${opt:stage, "dev"}
+  tracing:
+    lambda: true # AWS X-Ray Tracing
   environment:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
+    TABLE_PREFIX: ${self:service.name}-${self:provider.stage}-
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        # only give read access to ItemTable
+        # - dynamodb:PutItem
+        # - dynamodb:UpdateItem
+        # - dynamodb:DeleteItem
+      Resource: 
+        - "Fn::GetAtt": [ ItemTable, Arn ] # one way of getting the Arn 
+    - Effect: Allow
+      Action:
+        # LoanTable has no Scan and Delete rights
+        - dynamodb:Query
+        # - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        # - dynamodb:DeleteItem
+      Resource: 
+        - !GetAtt LoanTable.Arn # another way of getting the Arn 
+        # My dream: !Sub '${LoanTable.Arn}/index/by_status', but is does not work with Serverless Framework (hopefully one day)
+        # throw exception: 
+        #     ServerlessError: Invalid variable reference syntax for variable LoanTable.Arn. 
+        #                      You can only reference env vars, options, & files. You can check our docs for more info.
+        #     https://github.com/serverless/serverless/issues/3184
+        # I'll use Join instead
+        - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
 
 package:
   individually: true
 
 functions:
-  hello:
-    handler: src/functions/hello/hello.lambdaHandler
+  GetHelloFunction:
+    handler: src/functions/hello/getHello.lambdaHandler
     events:
       - http:
           method: get
-          path: hello
+          path: /hello
           cors: true
-  item:
-      handler: src/functions/items/item/item.lambdaHandler
+  ListItemsFunction:
+      handler: src/functions/item/listItems.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
-            path: items
+            path: /items
             cors: true          
-  item-by-id:
-      handler: src/functions/items/item-by-id/item-by-id.lambdaHandler
+  GetItemByIdFunction:
+      handler: src/functions/item/getItemById.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
-            path: items/id/{id}
+            path: /items/id/{id}
             cors: true
-  loan-by-status:
-      handler: src/functions/loans/loan-by-status/loan-by-status.lambdaHandler
+  GetLoanByStatus:
+      handler: src/functions/loan/getLoanByStatus.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
-            path: loans/status/{status}
-            cors: true            
-  loan-by-id:
-      handler: src/functions/loans/loan-by-id/loan-by-id.lambdaHandler
+            path: /loans/status/{status}
+            cors: true  
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer            
+  GetLoanByIdFunction:
+      handler: src/functions/loan/getLoanById.lambdaHandler
+      tracing: Active
       events:
         - http:
             method: get
-            path: loans/id/{id}
-            cors: true            
+            path: /loans/id/{id}
+            cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
+  PatchLoanByIdFunction:
+      handler: src/functions/loan/patchLoanById.lambdaHandler
+      tracing: Active
+      events:
+        - http:
+            method: patch
+            path: /loans/id/{id}
+            cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
+  PostLoanFunction:
+      handler: src/functions/loan/postLoan.lambdaHandler
+      tracing: Active
+      events:
+        - http:
+            method: post
+            path: /loans
+            cors: true
+            authorizer:
+              type: COGNITO_USER_POOLS
+              authorizerId:
+                Ref: ApiGatewayAuthorizer  
+
+resources:
+ # Cognito
+  - ${file(./aws-cloudformation/cognito-user-pool.yml)}
+  # DynamoDB
+  - ${file(./aws-cloudformation/dynamo-tables.yml)}

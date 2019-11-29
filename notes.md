@@ -34,3 +34,11 @@ export NODE_OPTIONS=--max_old_space_size=8192
 ```
 
 [FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory](https://github.com/serverless/serverless/issues/6503)
+
+# Packages
+- `env-cmd`: reads the .env file so that I can use it in the package.json.
+  
+Example:   
+```javascript
+env-cmd npm run sls deploy
+```

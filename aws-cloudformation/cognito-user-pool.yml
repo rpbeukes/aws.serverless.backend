@@ -1,0 +1,78 @@
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      # Generate a name based on the stage
+      UserPoolName: aws-serverless-backend-${self:provider.stage}
+      # TODO: test this later
+      # EmailConfiguration:
+      #   EmailSendingAccount: COGNITO_DEFAULT
+      #   ReplyToEmailAddress: some@email.net
+      AdminCreateUserConfig:
+        UnusedAccountValidityDays: 10
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+            MinimumLength: 15
+            RequireLowercase: False
+            RequireNumbers: False
+            RequireSymbols: False
+            RequireUppercase: False
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: true
+
+  FrontEndUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn:
+      - CognitoUserPool
+    Properties:
+      # Generate an app client name based on the stage
+      ClientName: aws-serverless-backend-app-client-${self:provider.stage}
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - USER_PASSWORD_AUTH
+      # https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-integrating-user-pools-javascript.html#tutorial-integrating-user-pools-userpool-object-javascript
+      # > The JavaScript SDK does not support the app client secret. If you configure your user pool app client with
+      # > an app client secret, the SDK will throw exceptions.
+      GenerateSecret: false
+      RefreshTokenValidity: 30 # Days
+      ReadAttributes:
+        - email
+      WriteAttributes:
+        - email
+
+  # then add an authorizer you can reference later
+  ApiGatewayAuthorizer:
+    DependsOn:
+    # this is pre-defined by serverless
+    - ApiGatewayRestApi
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: cognito_auth
+      # apparently ApiGatewayRestApi is a global string
+      RestApiId: { "Ref" : "ApiGatewayRestApi" }
+      IdentitySource: method.request.header.Authorization
+      Type: COGNITO_USER_POOLS
+      ProviderARNs:
+      - Fn::GetAtt: [CognitoUserPool, Arn]
+
+# Print out the Id of the User Pool that is created, append environment to exports.
+Outputs:
+  UserPoolId:
+    Description: "ID of the Cognito user pool for authentication"
+    Value: !Ref CognitoUserPool
+    # Export:
+    #  Name: aws-serverless-backend-UserPoolId-${self:provider.stage}
+
+  UserPoolClientId:
+    Description: "ID of the Cognito user pool client for authentication"
+    Value: !Ref FrontEndUserPoolClient
+    # Export:
+    #  Name: aws-serverless-backend-FrontEndUserPoolClient-${self:provider.stage}

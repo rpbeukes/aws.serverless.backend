@@ -8,14 +8,23 @@
     "tsc": "tsc",
     "package": "export NODE_OPTIONS=--max_old_space_size=8192 && npm-run-all --sequential package:**",
     "package:sls": "SLS_DEBUG=* npm run sls package -- --verbose --stage dev --package ./package",
+    "package:aws-resources": "cp -R ./aws-cloudformation ./package",
     "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
     "package:remove-cloudformation-json": "rm ./package/cloudformation*.json",
     "package:unzip-functions": "cd ./package && unzip \\*.zip",
-    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package",
-    "build-and-ship": "npm run package && npm run sls-deploy"
+    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package && npm run show",
+    "build-and-ship": "npm run package && npm run sls-deploy",
+    "show": "env-cmd aws cloudformation describe-stacks --stack-name aws-serverless-backend-dev --query Stacks[0].Outputs",
+    "show:userPoolId": "env-cmd aws cloudformation describe-stacks --stack-name aws-serverless-backend-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text",
+    "show:userPoolClientId": "env-cmd aws cloudformation describe-stacks --stack-name aws-serverless-backend-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text",
+    "create-test-user": "env-cmd node ./deployment-scripts/create.cognito.test.user.js 'dev' `npm run --silent show:userPoolId`"
   },
   "dependencies": {
+    "cuid": "^2.1.6",
+    "http-errors": "^1.7.3",
+    "http-status-codes": "^1.4.0",
     "middy": "^0.30.4",
+    "moment": "^2.24.0",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
