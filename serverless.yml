@@ -30,7 +30,7 @@ provider:
         # - dynamodb:UpdateItem
         # - dynamodb:DeleteItem
       Resource: 
-        - "Fn::GetAtt": [ ItemTable, Arn ]
+        - "Fn::GetAtt": [ ItemTable, Arn ] # one way of getting the Arn 
     - Effect: Allow
       Action:
         # LoanTable has no Scan and Delete rights
@@ -41,8 +41,8 @@ provider:
         - dynamodb:UpdateItem
         # - dynamodb:DeleteItem
       Resource: 
-        - "Fn::GetAtt": [ LoanTable, Arn ]
-        - "Fn::Join": [ "/", [ { "Fn::GetAtt": [ LoanTable, Arn ] }, "index", "by_status" ]]
+        - !GetAtt LoanTable.Arn # another way of getting the Arn 
+        - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
 
 package:
   individually: true
