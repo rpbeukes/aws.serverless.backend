@@ -1,19 +1,14 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 
-const lambda: APIGatewayProxyHandler = async (event) => {
+const lambda: APIGatewayProxyHandlerWrapper = async (event) => {
   return {
     statusCode: 200,
-    body: JSON.stringify(
-      {
-        message:
-          'Go Serverless Webpack (Typescript) v1.0! Your function executed successfully!',
-        input: event
-      },
-      null,
-      2
-    )
+    body: {
+      message:
+        'Go Serverless Webpack (Typescript) v1.0! Your function executed successfully!',
+      input: JSON.stringify(event, null, 2)
+    },
   };
 };
 
