@@ -42,6 +42,12 @@ provider:
         # - dynamodb:DeleteItem
       Resource: 
         - !GetAtt LoanTable.Arn # another way of getting the Arn 
+        # My dream: !Sub '${LoanTable.Arn}/index/by_status', but is does not work with Serverless Framework (hopefully one day)
+        # throw exception: 
+        #     ServerlessError: Invalid variable reference syntax for variable LoanTable.Arn. 
+        #                      You can only reference env vars, options, & files. You can check our docs for more info.
+        #     https://github.com/serverless/serverless/issues/3184
+        # I'll use Join instead
         - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
 
 package:
