@@ -1,6 +1,5 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 import { createDocumentClientOptions, createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import { InternalServerError, NotFound, Forbidden } from 'http-errors';
 import { DynamoDB } from 'aws-sdk';
@@ -10,7 +9,7 @@ import { loadById } from '../../services/database';
 import { Loan } from '../../dataModels';
 import { getUsername, isAdminUser } from '../../authentication';
 
-const lambda: APIGatewayProxyHandler = async (event) => {
+const lambda: APIGatewayProxyHandlerWrapper = async (event) => {
     if (!event.pathParameters || !event.pathParameters.id) {
       throw new InternalServerError(
         'getLoanByIdHandler() failed due to missing ID parameter'
@@ -47,7 +46,7 @@ const lambda: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: HttpStatus.OK,
-      body: JSON.stringify((data && data.Items && data.Items[0]) || null)
+      body: data && data.Items && data.Items[0]
     };
 
 }

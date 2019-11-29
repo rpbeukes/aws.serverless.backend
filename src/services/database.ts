@@ -37,8 +37,6 @@ export const save = async <TRecord extends Identifiable>(
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
   const result = await docClient.put(params).promise();
   console.log('result: ', JSON.stringify(result));
-
-
   return record;
 }
 
@@ -107,6 +105,7 @@ export const loadAllByQuery = async <TRecord extends Identifiable>(
 
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
 
+
   /*
    // This is to get it working with the basics
     var params: DocumentClient.QueryInput = {
@@ -124,53 +123,58 @@ export const loadAllByQuery = async <TRecord extends Identifiable>(
       }
     };
   */
+
+  const filterExpression = !filter ? undefined : Object.keys(filter)
+    .reduce((expression, _filterKey, index) => [
+      ...expression,
+      `#filter${index} = :filter${index}`
+    ],
+      // init value
+      [] as string[])
+    .join(' and ');
+
+  const expressionAttributeNames = Object.keys(filter || {})
+    .reduce((result, filterKey, index) => ({
+      ...result,
+      [`#filter${index}`]: filterKey
+    }),
+      // init value
+      { '#key': String(key) } as Record<string, any>);
+
+  const expressionAttributeValues = Object.keys(filter || {})
+    .reduce((result, filterKey, index) => ({
+      ...result,
+      [`:filter${index}`]: filter ? filter[filterKey as keyof TRecord] : undefined
+    }),
+      // init value
+      { ':value': value } as Record<string, any>);
+      
+  console.log(`filterExpression: ${filterExpression ? JSON.stringify(filterExpression) : undefined}`);
+  console.log(`expressionAttributeNames: ${expressionAttributeNames ? JSON.stringify(expressionAttributeNames) : undefined}`);
+  console.log(`expressionAttributeValues: ${expressionAttributeValues ? JSON.stringify(expressionAttributeValues) : undefined}`);
+
   var params = {
     TableName: tableName,
     IndexName: `by_${key}`,
     KeyConditionExpression: '#key = :value',
-    FilterExpression: !filter ? undefined : Object.keys(filter)
-      .reduce(
-        (expression, _filterKey, index) => [
-          ...expression,
-          `#filter${index} = :filter${index}`
-        ],
-        // init value
-        [] as string[]
-      )
-      .join(' and '),
-    ExpressionAttributeNames: Object.keys(filter || {})
-      .reduce(
-        (result, filterKey, index) => ({
-          ...result,
-          [`#filter${index}`]: filterKey
-        }),
-        // init value
-        { '#key': String(key) } as Record<string, any>
-      ),
-    ExpressionAttributeValues: Object.keys(filter || {})
-      .reduce(
-        (result, filterKey, index) => ({
-          ...result,
-          [`:filter${index}`]: filter ? filter[filterKey as keyof TRecord] : undefined
-        }),
-        // init value
-        { ':value': value } as Record<string, any>
-      ),
+    FilterExpression: filterExpression,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
     ExclusiveStartKey: startKey
   };
 
   const result = await docClient.query(params).promise();
-  
+
   console.log(JSON.stringify(result));
 
   return [
     ...result.Items as TRecord[] || [],
     ...(result.LastEvaluatedKey ? await loadAllByQuery(tableName, key, value, filter, result.LastEvaluatedKey) : undefined) as TRecord[] || []
   ];
-  
+
 };
 
-/* 
+/*
 // This is the result to test the LastEvaluatedKey when I requested with a Limit = 1
 
 Request:
@@ -238,7 +242,7 @@ Result:
 }
 
 // This means that the next request should have;
-  
+
    ExclusiveStartKey: {
         "id": "ck3gnuci4000008mmdrazahfb",
         "status": "submitted"

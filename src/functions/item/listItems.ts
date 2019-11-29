@@ -1,7 +1,6 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import * as HttpStatus from 'http-status-codes';
 import {
@@ -9,7 +8,7 @@ import {
   createDocumentClientOptions
 } from '../../shared/dynamoHelpers';
 
-const lambda: APIGatewayProxyHandler = async () => {
+const lambda: APIGatewayProxyHandlerWrapper = async () => {
 
     const docClient = new DynamoDB.DocumentClient(
       createDocumentClientOptions()
@@ -23,7 +22,7 @@ const lambda: APIGatewayProxyHandler = async () => {
 
     return {
       statusCode: HttpStatus.OK,
-      body: JSON.stringify(dataResponse.Items)
+      body: dataResponse.Items
     };
   
 };

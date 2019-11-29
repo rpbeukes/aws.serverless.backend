@@ -1,13 +1,13 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 import { createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import { loadAllByQuery } from '../../services/database';
 import { Loan } from '../../dataModels';
 import { InternalServerError, NotFound } from 'http-errors';
 import { getUsername, isAdminUser } from '../../authentication';
+import * as HttpStatus from 'http-status-codes';
 
-const lambda: APIGatewayProxyHandler = async (event) => {
+const lambda: APIGatewayProxyHandlerWrapper = async (event) => {
 
   if (!event.pathParameters || !event.pathParameters.status) {
     throw new InternalServerError(
@@ -29,8 +29,8 @@ const lambda: APIGatewayProxyHandler = async (event) => {
   }
 
   return {
-    statusCode: 200,
-    body: JSON.stringify(loans)
+    statusCode: HttpStatus.OK,
+    body: loans
   };
 }
 

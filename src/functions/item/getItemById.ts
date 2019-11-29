@@ -1,6 +1,5 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 import {
   createTableNameFromPrefix,
   createDocumentClientOptions
@@ -12,7 +11,7 @@ import { Item } from '../../dataModels';
 import { loadById } from '../../services/database';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 
-const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
+const lambda: APIGatewayProxyHandlerWrapper = async ({ pathParameters }) => {
     if (!pathParameters || !pathParameters.id) {
       throw new InternalServerError(
         'getItemByIdHandler() failed due to missing ID parameter'
@@ -42,7 +41,7 @@ const lambda: APIGatewayProxyHandler = async ({ pathParameters }) => {
 
     return {
       statusCode: HttpStatus.OK,
-      body: JSON.stringify((data && data.Items && data.Items[0]) || null)
+      body: data && data.Items && data.Items[0]
     };
 };
 

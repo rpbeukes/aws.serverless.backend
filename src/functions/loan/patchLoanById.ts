@@ -1,6 +1,5 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import 'source-map-support/register';
-import { createLambdaHandler } from '../../middleware/shared-middleware-pipeline';
+import { createLambdaHandler, APIGatewayProxyHandlerWrapper } from '../../middleware/shared-middleware-pipeline';
 import { createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import * as HttpStatus from 'http-status-codes';
 import { InternalServerError, NotFound, BadRequest, Forbidden
@@ -9,9 +8,7 @@ import { Loan, PatchLoanModel } from '../../dataModels';
 import { loadById, patchUpdate } from '../../services/database';
 import { isAdminUser, getUsername } from '../../authentication';
 
-const lambda: APIGatewayProxyHandler = async event => {
-    console.log('patchLoanHandler executed!');
-
+const lambda: APIGatewayProxyHandlerWrapper = async event => {
     if (!event.pathParameters || !event.pathParameters.id) {
       throw new InternalServerError(
         'patchLoanHandler() failed due to missing ID parameter'
@@ -25,7 +22,7 @@ const lambda: APIGatewayProxyHandler = async event => {
       throw new NotFound();
     }
 
-    const model = (event.body && JSON.parse(event.body)) as PatchLoanModel;
+    const model = event.body as PatchLoanModel;
 
     if (!model.status) {
       throw new BadRequest('failed to patch record - request body requires {"status": "submitted"| "approved" | "collected" | "returned" | "cancelled" } property');
@@ -50,7 +47,7 @@ const lambda: APIGatewayProxyHandler = async event => {
 
     return {
       statusCode: HttpStatus.OK,
-      body: JSON.stringify(patchedLoan)
+      body: patchedLoan
     };
 };
 
