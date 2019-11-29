@@ -5,6 +5,7 @@ import { createTableNameFromPrefix } from '../../shared/dynamoHelpers';
 import { loadAllByQuery } from '../../services/database';
 import { Loan } from '../../dataModels';
 import { InternalServerError, NotFound } from 'http-errors';
+import { getUsername, isAdminUser } from '../../authentication';
 
 const lambda: APIGatewayProxyHandler = async (event) => {
 
@@ -15,16 +16,22 @@ const lambda: APIGatewayProxyHandler = async (event) => {
   }
 
   const tableName = createTableNameFromPrefix('Loan');
-  let loans = await loadAllByQuery<Loan>(tableName, 'status', event.pathParameters.status);
+  
+  let loans = await loadAllByQuery<Loan>(
+    tableName,
+    'status',
+    event.pathParameters.status,
+    isAdminUser(event.requestContext) ? undefined : { user: getUsername(event.requestContext) }
+  );
 
   if (!loans) {
     throw new NotFound();
   }
-  
+
   return {
-      statusCode: 200,
-      body: JSON.stringify(loans)
-    };
+    statusCode: 200,
+    body: JSON.stringify(loans)
+  };
 }
 
 export const lambdaHandler = createLambdaHandler(lambda);
