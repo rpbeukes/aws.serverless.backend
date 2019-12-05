@@ -1,0 +1,12 @@
+Resources:
+  ImportItemsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:service.name}-${self:provider.stage}-importitems
+      AccessControl: Private
+
+# Print out the name of the bucket that is created
+Outputs:
+  ImportItemsBucket:
+    Description: "Name of the bucket where CSV import files will be uploaded"
+    Value: !Ref ImportItemsBucket
