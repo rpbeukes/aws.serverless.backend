@@ -3,7 +3,7 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       # Generate a name based on the stage
-      UserPoolName: aws-serverless-backend-${self:provider.stage}
+      UserPoolName: ${self:service.name}-${self:provider.stage}
       # TODO: test this later
       # EmailConfiguration:
       #   EmailSendingAccount: COGNITO_DEFAULT
