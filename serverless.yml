@@ -133,3 +133,5 @@ resources:
   - ${file(./aws-cloudformation/dynamo-tables.yml)}
   # S3 buckets
   - ${file(./aws-cloudformation/s3-buckets.yml)}
+  # SQS queues
+  - ${file(./aws-cloudformation/queues.yml)}
