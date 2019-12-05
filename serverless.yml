@@ -126,12 +126,25 @@ functions:
               authorizerId:
                 Ref: ApiGatewayAuthorizer  
 
+  ImportItemsFunction:
+      handler: src/functions/s3/importItems.s3Handler
+      tracing: Active
+      events:
+        - s3:
+           #bucket: ${file(./aws-cloudformation/s3-buckets.yml):Resources.ImportItemsBucket.Properties.BucketName}
+           bucket: ${self:service.name}-${self:provider.stage}-importitems-bucket
+           event: s3:ObjectCreated:*
+           rules:
+            - prefix: uploads/
+            - suffix: .csv
+
 resources:
   # Cognito
   - ${file(./aws-cloudformation/cognito-user-pool.yml)}
   # DynamoDB
   - ${file(./aws-cloudformation/dynamo-tables.yml)}
+  # No need to create a separate s3-buckets.yml, as the serverless framework takes care of creating the bucket too.
   # S3 buckets
-  - ${file(./aws-cloudformation/s3-buckets.yml)}
+  #- ${file(./aws-cloudformation/s3-buckets.yml)}
   # SQS queues
   - ${file(./aws-cloudformation/queues.yml)}

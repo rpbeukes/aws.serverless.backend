@@ -2,7 +2,7 @@ Resources:
   ImportItemsQueue: 
     Type: AWS::SQS::Queue
     Properties: 
-      QueueName: ${self:service.name}-${self:provider.stage}-importitems
+      QueueName: ${self:service.name}-${self:provider.stage}-importitems-queue
 
 Outputs:
   ImportItemsQueueURL:
