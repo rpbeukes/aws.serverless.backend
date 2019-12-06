@@ -4,11 +4,13 @@ import * as Papa from 'papaparse'
 import cuid = require("cuid");
 import { Item } from "../../dataModels";
 
-export const s3Handler: S3Handler = (event) => {
+export const s3Handler: S3Handler = async (event) => {
     //console.log('hit importItems s3 s3Handler');
     //console.log(JSON.stringify(event, null, 2));
 
-    event.Records.forEach(async (createCSVFileEvent) => {
+    // Don't use `event.Records.forEach(async (createCSVFileEvent) => {`  
+    //     see: https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop
+    for (const createCSVFileEvent of event.Records) {
         const bucketName = createCSVFileEvent.s3.bucket.name;
         const filePath = createCSVFileEvent.s3.object.key;
 
@@ -40,10 +42,12 @@ export const s3Handler: S3Handler = (event) => {
                             MessageBody: JSON.stringify(queueMessage)
                         }).promise();
                 })
+            } else {
+                throw Error()
             }
 
         } else {
             console.log(`No data in CSV file - ${filePath}`);
         }
-    });
+    };
 };
