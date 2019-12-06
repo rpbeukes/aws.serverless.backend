@@ -5,16 +5,14 @@ import cuid = require("cuid");
 import { Item } from "../../dataModels";
 
 export const s3Handler: S3Handler = (event) => {
-    console.log('hit importItems s3 s3Handler');
-    console.log(JSON.stringify(event, null, 2));
+    //console.log('hit importItems s3 s3Handler');
+    //console.log(JSON.stringify(event, null, 2));
 
-    event.Records.forEach(async (evnt) => {
-        // Retrieve the bucket & key for the uploaded S3 object that
-        // caused this Lambda function to be triggered
-        const bucketName = evnt.s3.bucket.name;
-        const filePath = evnt.s3.object.key;
+    event.Records.forEach(async (createCSVFileEvent) => {
+        const bucketName = createCSVFileEvent.s3.bucket.name;
+        const filePath = createCSVFileEvent.s3.object.key;
 
-        // Retrieve the object
+        // Retrieve the object (file)
         const result = await new AWS.S3().getObject({
             Bucket: bucketName,
             Key: filePath
@@ -24,10 +22,10 @@ export const s3Handler: S3Handler = (event) => {
 
         if (csvData) {
             let parseResult = Papa.parse(csvData, { header: true });
-            console.log(JSON.stringify(parseResult, null, 2));
+            console.info(`parseResult: ${JSON.stringify(parseResult, null, 2)}`);
 
             if (parseResult.data) {
-                console.log(`About to add ${parseResult.data.length} item(s) to queue...`);
+                console.info(`About to add ${parseResult.data.length} item(s) to queue...`);
 
                 parseResult.data.forEach(async (csvLine) => {
                     const queueMessage: Item = {
