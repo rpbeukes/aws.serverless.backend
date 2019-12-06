@@ -1,5 +1,3 @@
-# No need to use this file as Serverless framework will create the bucket.
-# Only kept for reference.
 Resources:
   ImportItemsBucket:
     Type: AWS::S3::Bucket

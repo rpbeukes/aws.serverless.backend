@@ -49,9 +49,18 @@ provider:
         #     https://github.com/serverless/serverless/issues/3184
         # I'll use Join instead
         - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
+    # Permissions for the s3 bucket
+    # if you don't add this, one gets 'Access Denied' error in the lambda when S3.GetObject executes.
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+      Resource: 
+        - !Join [ "/", [ !GetAtt ImportItemsBucket.Arn, "*" ]]
 
 package:
   individually: true
+  # exclude:
+  #   - 'custom-resources.zip'
 
 functions:
   GetHelloFunction:
@@ -131,20 +140,26 @@ functions:
       tracing: Active
       events:
         - s3:
-           #bucket: ${file(./aws-cloudformation/s3-buckets.yml):Resources.ImportItemsBucket.Properties.BucketName}
-           bucket: ${self:service.name}-${self:provider.stage}-importitems-bucket
+           bucket: ${file(./aws-cloudformation/s3-buckets.yml):Resources.ImportItemsBucket.Properties.BucketName}
            event: s3:ObjectCreated:*
            rules:
             - prefix: uploads/
             - suffix: .csv
+           existing: true 
 
 resources:
   # Cognito
   - ${file(./aws-cloudformation/cognito-user-pool.yml)}
   # DynamoDB
   - ${file(./aws-cloudformation/dynamo-tables.yml)}
-  # No need to create a separate s3-buckets.yml, as the serverless framework takes care of creating the bucket too.
   # S3 buckets
-  #- ${file(./aws-cloudformation/s3-buckets.yml)}
+    # because I have `existing: true` on my ImportItemsFunction
+        # I need to create the bucket myself.
+        # note: Serverless also creates an extra zip file custom-resources.zip 
+    # If one removes `existing: true`
+        # then Serverless will create the bucket automatically.
+        # no extra zip file, custom-resources.zip. 
+    # I decided to create the bucket yml myself so I can customize later...otherwise the magic is just too much for me.
+  - ${file(./aws-cloudformation/s3-buckets.yml)}
   # SQS queues
   - ${file(./aws-cloudformation/queues.yml)}
