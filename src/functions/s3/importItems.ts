@@ -42,6 +42,8 @@ export const s3Handler: S3Handler = async (event) => {
                             MessageBody: JSON.stringify(queueMessage)
                         }).promise();
                 }
+            } else {
+                throw new Error(JSON.stringify(parseResult.errors, null, 2));
             }
         } else {
             console.log(`No data in CSV file - ${filePath}`);
