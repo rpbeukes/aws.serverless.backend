@@ -29,7 +29,7 @@ export const s3Handler: S3Handler = async (event) => {
             if (parseResult.data) {
                 console.info(`About to add ${parseResult.data.length} item(s) to queue...`);
 
-                parseResult.data.forEach(async (csvLine) => {
+                for (const csvLine of parseResult.data) {
                     const queueMessage: Item = {
                         ...csvLine
                         , id: cuid()
@@ -41,11 +41,8 @@ export const s3Handler: S3Handler = async (event) => {
                             QueueUrl: process.env.IMPORT_ITEMS_QUEUE_URL as string,
                             MessageBody: JSON.stringify(queueMessage)
                         }).promise();
-                })
-            } else {
-                throw Error()
+                }
             }
-
         } else {
             console.log(`No data in CSV file - ${filePath}`);
         }
