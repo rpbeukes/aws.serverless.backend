@@ -19,6 +19,7 @@ provider:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     TABLE_PREFIX: ${self:service.name}-${self:provider.stage}-
+    IMPORT_ITEMS_QUEUE_URL: !Ref ImportItemsQueue
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -50,12 +51,19 @@ provider:
         # I'll use Join instead
         - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
     # Permissions for the s3 bucket
-    # if you don't add this, one gets 'Access Denied' error in the lambda when S3.GetObject executes.
+    # if you don't add this, one gets 'Access Denied' error in the lambda when `S3.GetObject` executes.
     - Effect: Allow
       Action:
         - s3:GetObject
       Resource: 
         - !Join [ "/", [ !GetAtt ImportItemsBucket.Arn, "*" ]]
+    # Permissions for the SQS queue
+    # if you don't add this, one gets 'Access Denied' error in the lambda when `new AWS.SQS().sendMessage` executes.
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource: 
+        - !GetAtt ImportItemsQueue.Arn
 
 package:
   individually: true
