@@ -31,8 +31,8 @@ export const s3Handler: S3Handler = async (event) => {
 
                 for (const csvLine of parseResult.data) {
                     const queueMessage: Item = {
-                        ...csvLine
-                        , id: cuid()
+                        ...csvLine,
+                        id: cuid()
                     };
                     console.info(`Add message to SQS import queue: ${JSON.stringify(queueMessage)}`);
                     // add the data on the SQS queue
