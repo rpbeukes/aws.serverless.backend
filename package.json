@@ -12,7 +12,7 @@
     "package:add-serverless-config": "cp serverless.yml package.json package-lock.json webpack.config.js ./package",
     "package:remove-cloudformation-json": "rm ./package/cloudformation*.json",
     "unzip-functions": "cd ./package && unzip -o '*.zip'",
-    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package && npm run show",
+    "sls-deploy": "env-cmd npm run sls deploy -- --stage dev --verbose --package ./package",
     "build-and-ship": "npm run package && npm run sls-deploy",
     "show": "env-cmd aws cloudformation describe-stacks --stack-name aws-serverless-backend-dev --query Stacks[0].Outputs",
     "show:userPoolId": "env-cmd aws cloudformation describe-stacks --stack-name aws-serverless-backend-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text",
