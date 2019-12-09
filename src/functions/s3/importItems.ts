@@ -3,6 +3,7 @@ import AWS = require("aws-sdk");
 import * as Papa from 'papaparse'
 import cuid = require("cuid");
 import { Item } from "../../dataModels";
+import { enqueueMessage } from '../../services/queue';
 
 export const s3Handler: S3Handler = async (event) => {
     //console.log('hit importItems s3 s3Handler');
@@ -35,13 +36,9 @@ export const s3Handler: S3Handler = async (event) => {
                         id: cuid()
                     };
                     console.info(`Add message to SQS import queue: ${JSON.stringify(queueMessage)}`);
+
                     // add the data on the SQS queue
-                    let sqsResult = await new AWS.SQS()
-                        .sendMessage({
-                            QueueUrl: process.env.IMPORT_ITEMS_QUEUE_URL as string,
-                            MessageBody: JSON.stringify(queueMessage)
-                        }).promise();
-                    
+                    const sqsResult = await enqueueMessage(process.env.IMPORT_ITEMS_QUEUE_URL as string, queueMessage);
                     console.info(JSON.stringify(sqsResult, null, 2));
                 }
             } else {
