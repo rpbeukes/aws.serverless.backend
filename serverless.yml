@@ -154,6 +154,11 @@ functions:
             - prefix: uploads/
             - suffix: .csv
            existing: true 
+  # One thing to note:
+  #   The consuming lambda of the queue will automatically delete the item from the queue. 
+  #   See - https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
+  #     > Lambda reads messages in batches and invokes your function once for each batch. 
+  #     > When your function successfully processes a batch, Lambda deletes its messages from the queue. 
   ImportItemsSQSToDynamoFunction:
       handler: src/functions/sqs/importItems.sqsHandler
       tracing: Active
