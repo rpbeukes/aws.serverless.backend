@@ -35,8 +35,7 @@ export const save = async <TRecord extends Identifiable>(
   };
 
   const docClient = new DynamoDB.DocumentClient(createDocumentClientOptions());
-  const result = await docClient.put(params).promise();
-  console.log('result: ', JSON.stringify(result));
+  await docClient.put(params).promise();
   return record;
 }
 
