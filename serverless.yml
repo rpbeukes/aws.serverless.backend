@@ -142,8 +142,7 @@ functions:
               type: COGNITO_USER_POOLS
               authorizerId:
                 Ref: ApiGatewayAuthorizer  
-
-  ImportItemsFunction:
+  ImportItemsS3ToSQSFunction:
       handler: src/functions/s3/importItems.s3Handler
       tracing: Active
       events:
@@ -154,6 +153,13 @@ functions:
             - prefix: uploads/
             - suffix: .csv
            existing: true 
+  ImportItemsSQSToDynamoFunction:
+      handler: src/functions/sqs/importItems.sqsHandler
+      tracing: Active
+      events:
+        - sqs:
+           arn: !GetAtt ImportItemsQueue.Arn
+           batchSize: 1 # default is 10
 
 resources:
   # Cognito
