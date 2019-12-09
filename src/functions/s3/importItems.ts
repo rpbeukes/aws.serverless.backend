@@ -36,11 +36,13 @@ export const s3Handler: S3Handler = async (event) => {
                     };
                     console.info(`Add message to SQS import queue: ${JSON.stringify(queueMessage)}`);
                     // add the data on the SQS queue
-                    await new AWS.SQS()
+                    let sqsResult = await new AWS.SQS()
                         .sendMessage({
                             QueueUrl: process.env.IMPORT_ITEMS_QUEUE_URL as string,
                             MessageBody: JSON.stringify(queueMessage)
                         }).promise();
+                    
+                    console.info(JSON.stringify(sqsResult, null, 2));
                 }
             } else {
                 throw new Error(JSON.stringify(parseResult.errors, null, 2));
