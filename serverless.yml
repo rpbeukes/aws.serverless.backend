@@ -26,9 +26,10 @@ provider:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
-        # only give read access to ItemTable
-        # - dynamodb:PutItem
-        # - dynamodb:UpdateItem
+        # The CSV import lambda (ImportItemsSQSToDynamoFunction)
+        # needs to add records to ItemsTable
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
         # - dynamodb:DeleteItem
       Resource: 
         - "Fn::GetAtt": [ ItemTable, Arn ] # one way of getting the Arn 
