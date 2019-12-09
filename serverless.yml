@@ -19,15 +19,17 @@ provider:
     STAGE: ${self:provider.stage}
     REGION: ${self:provider.region}
     TABLE_PREFIX: ${self:service.name}-${self:provider.stage}-
+    IMPORT_ITEMS_QUEUE_URL: !Ref ImportItemsQueue
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
-        # only give read access to ItemTable
-        # - dynamodb:PutItem
-        # - dynamodb:UpdateItem
+        # The CSV import lambda (ImportItemsSQSToDynamoFunction)
+        # needs to add records to ItemsTable
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
         # - dynamodb:DeleteItem
       Resource: 
         - "Fn::GetAtt": [ ItemTable, Arn ] # one way of getting the Arn 
@@ -49,9 +51,25 @@ provider:
         #     https://github.com/serverless/serverless/issues/3184
         # I'll use Join instead
         - !Join [ "/", [ !GetAtt LoanTable.Arn, "index", "by_status" ]]
+    # Permissions for the s3 bucket
+    # if you don't add this, one gets 'Access Denied' error in the lambda when `S3.GetObject` executes.
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+      Resource: 
+        - !Join [ "/", [ !GetAtt ImportItemsBucket.Arn, "*" ]]
+    # Permissions for the SQS queue
+    # if you don't add this, one gets 'Access Denied' error in the lambda when `new AWS.SQS().sendMessage` executes.
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource: 
+        - !GetAtt ImportItemsQueue.Arn
 
 package:
   individually: true
+  # exclude:
+  #   - 'custom-resources.zip'
 
 functions:
   GetHelloFunction:
@@ -125,9 +143,43 @@ functions:
               type: COGNITO_USER_POOLS
               authorizerId:
                 Ref: ApiGatewayAuthorizer  
+  ImportItemsS3ToSQSFunction:
+      handler: src/functions/s3/importItems.s3Handler
+      tracing: Active
+      events:
+        - s3:
+           bucket: ${file(./aws-cloudformation/s3-buckets.yml):Resources.ImportItemsBucket.Properties.BucketName}
+           event: s3:ObjectCreated:*
+           rules:
+            - prefix: uploads/
+            - suffix: .csv
+           existing: true 
+  # One thing to note:
+  #   The consuming lambda of the queue will automatically delete the item from the queue. 
+  #   See - https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
+  #     > Lambda reads messages in batches and invokes your function once for each batch. 
+  #     > When your function successfully processes a batch, Lambda deletes its messages from the queue. 
+  ImportItemsSQSToDynamoFunction:
+      handler: src/functions/sqs/importItems.sqsHandler
+      tracing: Active
+      events:
+        - sqs:
+           arn: !GetAtt ImportItemsQueue.Arn
+           batchSize: 1 # default is 10
 
 resources:
- # Cognito
+  # Cognito
   - ${file(./aws-cloudformation/cognito-user-pool.yml)}
   # DynamoDB
   - ${file(./aws-cloudformation/dynamo-tables.yml)}
+  # S3 buckets
+    # because I have `existing: true` on my ImportItemsFunction
+        # I need to create the bucket myself.
+        # note: Serverless also creates an extra zip file custom-resources.zip 
+    # If one removes `existing: true`
+        # then Serverless will create the bucket automatically.
+        # no extra zip file, custom-resources.zip. 
+    # I decided to create the bucket yml myself so I can customize later...otherwise the magic is just too much for me.
+  - ${file(./aws-cloudformation/s3-buckets.yml)}
+  # SQS queues
+  - ${file(./aws-cloudformation/queues.yml)}

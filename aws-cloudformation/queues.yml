@@ -1,0 +1,13 @@
+Resources:
+  ImportItemsQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: ${self:service.name}-${self:provider.stage}-importitems-queue
+
+Outputs:
+  ImportItemsQueueURL:
+    Description: "URL of importitems queue"
+    Value: !Ref ImportItemsQueue
+  ImportItemsQueueARN: 
+    Description: "ARN of importitems queue"
+    Value: !GetAtt ImportItemsQueue.Arn

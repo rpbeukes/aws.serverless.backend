@@ -1,0 +1,4 @@
+category,name,description,count,consumable
+ammunition,Grenades (4),Basic explosive hand grenades.,0,true
+ammunition,RPGs (4),Rocket-propelled grenades.,0,true
+ammunition,Stun grenades (4),Explosive hand grenade with stun capability.,0,true
