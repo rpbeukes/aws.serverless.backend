@@ -24,7 +24,7 @@
     "http-errors": "^1.7.3",
     "http-status-codes": "^1.4.0",
     "middy": "^0.30.4",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "papaparse": "^5.1.0",
     "source-map-support": "^0.5.10"
   },
